@@ -5,3 +5,7 @@
   text-transform: uppercase;
   letter-spacing: 2px;
 }
+
+.blog-content {
+  display: flex;
+}

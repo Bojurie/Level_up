@@ -1,48 +1,52 @@
-import React, {useState, useEffect} from 'react'
+import axios from "axios";
+import { useContext, useRef } from "react";
+import { Link } from "react-router-dom";
+import { Context } from "../../context/Context";
+
 import './Register.css'
 
  const Login = () => {
-   const [user, setUser] = useState({
+  const userRef = useRef();
+  const passwordRef = useRef();
+  const { dispatch, isFetching } = useContext(Context);
 
-    email: '',
-    password: '',
-
-   })
-    useEffect(() => {
-      
-      return () => {
-        
-      };
-}, []);
-   
-
-   const { email, password } = user;
-
-   const onChange = e => setUser({...user, [e.target.name]: e.target.value});
-
-   const onSubmit = e => {
-     e.prventDefault();
-      console.log('Logged In')     
-   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    dispatch({ type: "LOGIN_START" });
+    try {
+      const res = await axios.post("/login", {
+        username: userRef.current.value,
+        password: passwordRef.current.value,
+      });
+      dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
+    } catch (err) {
+      dispatch({ type: "LOGIN_FAILURE" });
+    }
+  };
   return (
       <div className='login'>
           <div className='form-container'>
             <h1>Account <span className='text-primary'>Login</span></h1>
             <hr />
             <h3>Welcome back to level up.</h3>
-            <form onSubmit={onSubmit} className='form-content-container'>
+            <form onSubmit={handleSubmit} className='form-content-container'>
             
               <div className='form-group'>
-                <label htmlFor='email'>Email Address</label>
-                <input type='email' name='email' placeholder="Email Address" value={email} onChange={onChange}/>
+                <label >Email Address</label>
+                <input type='text'  placeholder="Email Address"  ref={userRef}/>
               </div>
               <div className='form-group'>
                 <label htmlFor='password'>Password</label>
-                <input type='passowrd' name='password' value={password} onChange={onChange}/>
+                <input type='passowrd' name='password' ref={passwordRef}/>
               </div>
           
-              <p><button type='submit' value='Login' className='btn btn-primary btn-block'>Login</button></p> 
+             
             </form>
+            <button className="btn btn-primary btn-block">
+              <Link className="link" to="/register">
+                Register
+              </Link>
+            </button>
           </div>
       </div>
   )

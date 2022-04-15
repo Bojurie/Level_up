@@ -1,12 +1,47 @@
 const express = require('express');
-// var logger = require('morgan');
 const app = express();
+const dotenv = require('dotenv')
+const mongoose = require('mongoose') 
+const authRoute = require("./routes/auth")
+const userRoute = require("./routes/users")
+const postRoute = require("./routes/posts")
+const categoryRoute = require("./routes/categories")
+const multer = require('multer')
 
-const path = require('path')
+
+dotenv.config();
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true, 
+  useUnifiedTopology: true
+}).then(console.log("connected to mongoDB"))
+.catch((err) => console.log(err));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.name);
+  },
+});
+
+const upload = multer({ storage: storage });
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  res.status(200).json("File has been uploaded");
+});
+
+app.use("/auth", authRoute);
+app.use("/users", userRoute);
+app.use("/posts", postRoute);
+app.use("/categories", categoryRoute);
+
+// const path = require('path')
 
 // app.use('/server.js', express.static(path.join(__dirname, 'public')))
 
-app.use('/server.js', express.static(path.join(__dirname, 'public')));
+// app.use('/server.js', express.static(path.join(__dirname, 'public')));
 
 
 // app.use(express.urlencoded({ extended: false }));
@@ -16,19 +51,19 @@ app.use('/server.js', express.static(path.join(__dirname, 'public')));
 
 // app.use(cookieParser());
 
-app.post('/login', (req, res) => {
-  res.send('Got a POST request')
-})
+// app.use('/', (req, res) => {
+//   console.log('hello from server')
+// })
 
-app.post('/register', (req, res) => {
-  res.send('Got a POST request')
-})
+    // "start": "node ./bin/www",
+    // "client": "cd my-app && npm start",
+    // "dev": "concurrently \"nodemon server.js\" \"npm run client\""
 
 // app.use('/login', (req, res ));
 // app.use('/register', (req, res));
 
 
-
+console.log('hello')
 const PORT = 5000
 
 app.listen(PORT, () => {
